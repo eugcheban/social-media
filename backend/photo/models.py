@@ -10,7 +10,7 @@ class BasePhoto(models.Model):
         abstract = True
         
 class UserPhoto(BasePhoto):
-    user = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='photos')
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='photos', null=True, blank=True)
 
     def __str__(self):
         return f"Photo {self.id} uploaded by User {self.user_id}"
