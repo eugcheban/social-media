@@ -186,3 +186,8 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+USE_TZ = True
+OTP_DELTA = timedelta(minutes=15)
+OTP_LENGTH = 6
+OTP_RETENTION_DAYS = 1  # keep old/used OTPs for 1 day before cleanup for registered users

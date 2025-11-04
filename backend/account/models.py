@@ -3,6 +3,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
+from django.utils import timezone
+from datetime import timedelta
+from core.settings import OTP_RETENTION_DAYS
 
 class AccountManager(BaseUserManager):
     def get_user_by_public_id(self, public_id):
@@ -37,8 +40,14 @@ class Account(AbstractUser):
 
     objects = AccountManager()
     
+    _last_otp_clean = models.DateTimeField(default=timezone.now)
+    
     def __str__(self):
         return self.username
+    
+    @property
+    def is_time_to_clean_otp(self):
+        return self._last_otp_clean < timezone.now + timedelta(days=OTP_RETENTION_DAYS)
     
     class Meta:
         db_table = 'accounts'
