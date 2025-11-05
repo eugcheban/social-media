@@ -8,7 +8,7 @@ try:
             """\
 From: Anne Person <anne@example.com>
 To: Bart Person <bart@example.com>
-Subject: A test
+Subject: A testtt
 Message-ID: <ant>
 
 Hi Bart, this is Anne.
