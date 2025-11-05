@@ -28,5 +28,14 @@ services:
     depends_on:
       - db
 
+  smtpd:
+    build:
+      context: .
+      dockerfile: Dockerfile.smtpd
+    ports:
+      - "8025:8025"
+    volumes:
+      - ./smtpd_handler.py:/app/smtpd_handler.py
+
 volumes:
   social-site-db-data:

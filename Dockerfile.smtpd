@@ -1,0 +1,9 @@
+from python:3.12-slim as base
+
+run pip install --no-cache-dir aiosmtpd \
+    && mkdir app
+
+workdir /app
+
+CMD ["python3", "smtpd_handler.py"]
+
