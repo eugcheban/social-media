@@ -1,3 +1,4 @@
+import sys
 from aiosmtpd.controller import Controller
 
 class PrintHandler:
@@ -5,6 +6,8 @@ class PrintHandler:
         print("=== New message received ===")
         print(envelope.content.decode('utf8', errors='replace'))
         print("=== End of message ===")
+        sys.stdout.flush()
+
         return '250 OK'
 
 if __name__ == "__main__":
