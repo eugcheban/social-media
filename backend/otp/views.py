@@ -13,31 +13,40 @@ class OTPViewsSet(viewsets.APIView):
             user = self.request.user
             otp_code = OTP(
                 user = user or None,
-                hash_otp = OTPService.generate_code(),   
+                hash_otp = OTPService.generate_code(),
             )
             
             return Response(
                 data={
                     "uuid": otp_code.uuid,
-                    "hash_otp": otp_code.hash_otp
                 }
             )
         
     def get(self):
         user = self.request.user
-        uuid = self.request.query_params.get('pk')
+        code_uuid = self.request.query_params.get('pk')
         otp = self.requests.query_params.get('otp')
         
+        # clear old codes
         if user.is_time_to_clean_otp:
-            otps = OTP.object.filter(uuid=uuid).all()
+            otps = OTP.object.filter(user=self.request.user).all()
             
             for otp in otps:
                 if not otp.is_valid:
                     otp.delete()
-                    
+        
+        otp_instance = OTP.objects.get(
+            code_uuid=code_uuid    
+        )
+        hash_otp = otp_instance.hash_otp
+        
         return Response(
             data={
-                "validation": OTPService.check_otp(otp)         
+                "validation": OTPService.check_otp(
+                        otp_instance,
+                        otp, 
+                        hash_otp
+                    ) 
             },
             status=200
         )

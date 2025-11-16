@@ -8,13 +8,13 @@ class OTPService:
     def hash_otp(otp):
         return make_password(otp)
     
-    @classmethod
-    def check_otp(self, otp):
-        checked = check_password(otp)
+    @staticmethod
+    def check_otp(otp_instance, otp, hash_otp):
+        checked = check_password(otp, hash_otp)
         
-        if checked and self.used_at == None:
-            self.used_at = timezone.now()
-            return checked
+        if checked and otp_instance.used_at == None:
+            otp_instance.used_at = timezone.now()
+            return True
         
         return False
     
