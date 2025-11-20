@@ -11,10 +11,14 @@ class OTPViewsSet(viewsets.APIView):
     
     def create(self):
             user = self.request.user
+            code_otp = OTPService.generate_code()
             otp_code = OTP(
                 user = user or None,
-                hash_otp = OTPService.generate_code(),
+                hash_otp = OTPService.hash_otp(code_otp),
             )
+            
+            # send email
+            # code_otp
             
             return Response(
                 data={

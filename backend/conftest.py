@@ -14,21 +14,23 @@ BACKEND_DIR = os.path.abspath(os.path.dirname(__file__))
 if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
 
+@pytest.fixture
+def Account_fixture(db):
+    from account.models import Account
+    return Account.objects.create(
+        email='test_fixture@mail.com',
+        bio="fixture bio."
+    )
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
-django.setup()
-
-class Account:
-    def __init__(
-        self,
-        public_id,
-        email,
-        bio
-    ):
-        self.public_id = public_id
-        self,email = email
-        self.bio = bio
-
+@pytest.fixture
+def OTP_fixture(db, Account_fixture):
+    from otp.models import OTP
+    from otp.services import OTPService
+    
+    return OTP.objects.create(
+        user=Account_fixture,
+        hash_otp=OTPService.hash_otp('111111')
+    )
     
 @pytest.fixture
 def otp():

@@ -7,12 +7,11 @@ from datetime import timedelta, datetime
 from django.utils import timezone
 
 class OTP(models.Model):
-    user = models.OneToOneField(Account, on_delete=models.CASCADE, null=True, related_name='otp')
-    hash_otp = models.CharField(max_length=64)
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, related_name='otps')
+    hash_otp = models.CharField(max_length=120)
     issued_by = models.DateTimeField(default=timezone.now)
-    used_at = models.DateTimeField(default=None)
+    used_at = models.DateTimeField(null=True, blank=True)
     code_uuid = models.UUIDField(max_length=36, default=uuid.uuid4, editable=False)
-    used_at = models.DateTimeField(default=None)
     
     @property
     def expired_by(self):
