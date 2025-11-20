@@ -29,7 +29,7 @@ def OTP_fixture(db, Account_fixture):
     
     return OTP.objects.create(
         user=Account_fixture,
-        hash_otp=OTPService.hash_otp('111111')
+        hash_otp=OTPService.hash_otp('789000')
     )
     
 @pytest.fixture

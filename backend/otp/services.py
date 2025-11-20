@@ -18,9 +18,9 @@ class OTPService:
         
         return False
     
-    @classmethod
-    def verify_otp(self, otp):
-        return make_password(otp) == self.hash_otp
+    @staticmethod
+    def verify_otp(otp_instance, otp):
+        return check_password(otp, otp_instance.hash_otp)
     
     @staticmethod
     def generate_code():
