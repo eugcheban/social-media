@@ -5,12 +5,14 @@ from rest_framework.permissions import IsAuthenticated
 from .serializsrs import OTPSerializer
 from .models import OTP
 from .services import OTPService
+from smtp_client import send_email
 
 class OTPViewsSet(viewsets.APIView):
     serializer_class = OTPSerializer
     
     def create(self):
             user = self.request.user
+            mail = self.request.data.get('mail')
             code_otp = OTPService.generate_code()
             otp_code = OTP(
                 user = user or None,
@@ -18,13 +20,22 @@ class OTPViewsSet(viewsets.APIView):
             )
             
             # send email
-            # code_otp
-            
-            return Response(
-                data={
-                    "uuid": otp_code.uuid,
-                }
-            )
+            if send_email(
+                to_addr=mail,
+                msg=f"Your OTP code for authentication is {code_otp}"
+            ):
+                return Response(
+                    data={
+                        "uuid": otp_code.uuid,
+                    }
+                )
+            else:
+                return Response(
+                    data={
+                        "msg": "Error while sending email!"
+                    },
+                    status=500
+                )
         
     def get(self):
         user = self.request.user

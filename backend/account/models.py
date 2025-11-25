@@ -15,11 +15,11 @@ class AccountManager(BaseUserManager):
         except (ObjectDoesNotExist, ValueError, TypeError):
             raise Http404("User not found")
     
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, email, username, password=None, **extra_fields):
         if not email:
             raise ValueError("Email is required")
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=email, username=username, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -34,7 +34,6 @@ class Account(AbstractUser):
     public_id = models.UUIDField(unique=True, editable=False, auto_created=True, default=uuid.uuid4)
     email = models.EmailField(unique=True)
     bio = models.TextField(blank=True, null=True)
-    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 

@@ -7,6 +7,7 @@ import django
 from django.contrib.auth.hashers import make_password, check_password
 import pytest
 
+
 # Get the absolute path to the backend directory
 BACKEND_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -16,11 +17,31 @@ if BACKEND_DIR not in sys.path:
 
 @pytest.fixture
 def Account_fixture(db):
-    from account.models import Account
-    return Account.objects.create(
-        email='test_fixture@mail.com',
-        bio="fixture bio."
+    from account.models import Account, AccountManager
+    return Account.objects.create_user(
+        username='admin_user',
+        email='test_mail_1@mail.com',
+        bio="fixture bio.",
+        password='admin_user'
     )
+    
+    
+@pytest.fixture
+def Account_fixture_2(db):
+    from account.models import Account, AccountManager
+    return Account.objects.create_user(
+        username='general_user',
+        email='test_mail_2@mail.com',
+        bio="fixture bio.",
+        password='general_user',
+        
+    )
+    
+    # return Account.objects.create(
+    #     usernmae='genral_user',
+    #     email='test_fixture@mail.com',
+    #     bio="fixture bio."
+    # )
 
 @pytest.fixture
 def OTP_fixture(db, Account_fixture):

@@ -1,12 +1,13 @@
 from smtplib import SMTP, SMTPConnectError
 from typing import List
 from dotenv import load_dotenv
+from typing import Optional
 import os
 
 load_dotenv()
 
 def send_email(
-        from_addr: str="admin@socialmedia.com", 
+        from_addr: Optional[str]="admin@socialmedia.com", 
         to_addr: List[str]=None,
         msg: str=None,
     ):
@@ -20,5 +21,7 @@ def send_email(
                 msg
             )
             print("Sendmail result:", result)
+            return True
     except SMTPConnectError as e:
         print("Connection failed:", e)
+        return False
