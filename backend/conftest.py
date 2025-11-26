@@ -2,7 +2,7 @@ from __future__ import annotations
 import sys
 import os
 import django
-
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.contrib.auth.hashers import make_password, check_password
 import pytest
@@ -61,3 +61,18 @@ def otp():
 def hash_otp(otp):
     return make_password(otp)
 
+@pytest.fixture
+def User_photo(Account_fixture):
+    from photo.models import UserPhoto
+    
+    image = SimpleUploadedFile(
+        name="test_image.jpg",
+        content=b"fake image content",
+        content_type="image/jpeg"
+    )
+    
+    return UserPhoto.objects.create(
+        user=Account_fixture,
+        image=image,
+        photo_type='avatar'
+    )

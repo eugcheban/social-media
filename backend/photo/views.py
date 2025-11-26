@@ -1,23 +1,26 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from .models import UserPhoto
+from account.models import Account
 from .serializers import UserPhotoSerializer
 
 class UserPhotoViewSet(viewsets.ModelViewSet):
     serializer_class = UserPhotoSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        
     def get_queryset(self):
         user_id = self.request.user.id
-        photo_id = self.request.query_params.get('pk')
+        user = Account.objects.get(id=user_id)
+        photo_type = self.kwargs.get('photo_type')
         
-        if self.action in ['get', 'delete', 'update', 'partial_update'] and photo_id is not None:
-            return UserPhoto.objects.filter(id=user_id)
+        if photo_type:
+            return UserPhoto.objects.filter(photo_type=photo_type)
         
-        if self.request.user.is_superuser:
-            return UserPhoto.objects.all()
-        else:
-            return UserPhoto.objects.filter(id=user_id)
+        return UserPhoto.objects.filter(user=user)
         
+
     def get_permissions(self):
         if self.action == 'create':
             permission_classes = [IsAuthenticated]

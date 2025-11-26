@@ -32,3 +32,4 @@ urlpatterns = [
     path('api/', include('otp.urls'))
 
 ]
+    
