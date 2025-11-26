@@ -24,4 +24,4 @@ class OTPService:
     
     @staticmethod
     def generate_code():
-        return ''.join(random.choices(string.digits, lenght=OTP_LENGTH))
+        return ''.join(random.choices(string.digits, k=OTP_LENGTH))

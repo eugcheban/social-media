@@ -7,7 +7,7 @@ from datetime import timedelta, datetime
 from django.utils import timezone
 
 class OTP(models.Model):
-    user = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, related_name='otps')
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True, related_name='otps')
     hash_otp = models.CharField(max_length=120)
     issued_by = models.DateTimeField(default=timezone.now)
     used_at = models.DateTimeField(null=True, blank=True)

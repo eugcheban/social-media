@@ -1,21 +1,25 @@
 from django.shortcuts import render
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from .serializsrs import OTPSerializer
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from .serializers import OTPSerializer
 from .models import OTP
+from account.models import Account
 from .services import OTPService
 from smtp_client import send_email
 
-class OTPViewsSet(viewsets.APIView):
+class OTPViewsSet(APIView):
+    permission_classes = [AllowAny]
     serializer_class = OTPSerializer
     
-    def create(self):
-            user = self.request.user
-            mail = self.request.data.get('mail')
+    def post(self, request):
+            user = request.user
+            account_user = Account.objects.filter(id=user.id).first()
+            mail = request.data.get('mail')
             code_otp = OTPService.generate_code()
             otp_code = OTP(
-                user = user or None,
+                user = account_user or None,
                 hash_otp = OTPService.hash_otp(code_otp),
             )
             
@@ -37,14 +41,14 @@ class OTPViewsSet(viewsets.APIView):
                     status=500
                 )
         
-    def get(self):
-        user = self.request.user
-        code_uuid = self.request.query_params.get('pk')
-        otp = self.requests.query_params.get('otp')
+    def get(self, request):
+        user = request.user
+        code_uuid = request.query_params.get('pk')
+        otp = requests.query_params.get('otp')
         
         # clear old codes
         if user.is_time_to_clean_otp:
-            otps = OTP.object.filter(user=self.request.user).all()
+            otps = OTP.object.filter(user=request.user).all()
             
             for otp in otps:
                 if not otp.is_valid:

@@ -3,7 +3,7 @@ from .models import OTP
 
 class OTPSerializer(serializers.ModelSerializer):
     hash_otp = serializers.CharField(read_only=True)
-    is_valid = serializers.Boolean(read_only=True)
+    is_valid = serializers.BooleanField(read_only=True)
     
     class Meta:
         model = OTP
