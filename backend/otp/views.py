@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.db import transaction, IntegrityError
 from .serializers import OTPSerializer
 from .models import OTP
 from account.models import Account
@@ -16,21 +17,31 @@ class OTPViewsSet(APIView):
     def post(self, request):
             user = request.user
             account_user = Account.objects.filter(id=user.id).first()
-            mail = request.data.get('mail')
+            from_addr = request.data.get('from_addr')
+            to_addr = request.data.get('to_addr')
             code_otp = OTPService.generate_code()
-            otp_code = OTP(
-                user = account_user or None,
-                hash_otp = OTPService.hash_otp(code_otp),
-            )
-            
-            # send email
+            try:
+                with transaction.atomic():
+                    otp_code = OTP(
+                        user=account_user or None,
+                        hash_otp=OTPService.hash_otp(code_otp),
+                    )
+                    otp_code.save()
+
+            except IntegrityError:
+                return Response({"error": "Database integrity error"}, status=500)
+
+            except Exception:
+                return Response({"error": "Unexpected server error"}, status=500)
+
             if send_email(
-                to_addr=mail,
+                from_addr=from_addr,
+                to_addr=to_addr,
                 msg=f"Your OTP code for authentication is {code_otp}"
             ):
                 return Response(
                     data={
-                        "uuid": otp_code.uuid,
+                        "uuid": otp_code.code_uuid,
                     }
                 )
             else:
