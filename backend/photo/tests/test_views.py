@@ -25,12 +25,10 @@ class TestPhotoViews:
         
     def test_photo_get(self, User_photo, Account_fixture):
         self.client.force_authenticate(user=Account_fixture)
-        # url = reverse('photo:userphoto-list', kwargs={'photo_type': 'avatar'})
-        url = ('/api/userphoto/')
+        url = reverse('photo:userphoto-list') + '?photo_type=avatar'
         
-        response = self.client.get(url, kwargs={'photo_type': 'avatar'})
+        response = self.client.get(url)
         assert response.status_code == 200
-        
         assert len(response.json()) > 0
         
     def test_photo_delete(self, Account_fixture, User_photo):
