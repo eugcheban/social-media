@@ -1,9 +1,9 @@
-from django.urls import path, include
-from .views import AccountViewSet
+from django.urls import include, path
+
 from .routers import router
 
-app_name = 'account'
+app_name = "account"
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]
