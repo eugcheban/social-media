@@ -1,5 +1,7 @@
 import sys
+
 from aiosmtpd.controller import Controller
+
 
 class PrintHandler:
     async def handle_DATA(self, server, session, envelope):

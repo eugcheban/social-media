@@ -24,7 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start develop nt settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "KEY12345_3232UF9HF298H32##@##@22F2")
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "KEY12345_3232UF9HF298H32##@##@22F2"
+)
 
 DEBUG = os.environ.get("DEBUG", False)
 
@@ -165,7 +167,9 @@ SIMPLE_JWT = {
     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
     "ON_LOGIN_SUCCESS": "rest_framework_simplejwt.serializers.default_on_login_success",
     "ON_LOGIN_FAILED": "rest_framework_simplejwt.serializers.default_on_login_failed",
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "AUTH_TOKEN_CLASSES": (
+        "rest_framework_simplejwt.tokens.AccessToken",
+    ),
     "TOKEN_TYPE_CLAIM": "token_type",
     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
     "JTI_CLAIM": "jti",
@@ -183,6 +187,4 @@ SIMPLE_JWT = {
 USE_TZ = True
 OTP_DELTA = timedelta(minutes=15)
 OTP_LENGTH = 6
-OTP_RETENTION_DAYS = (
-    1  # keep old/used OTPs for 1 day before cleanup for registered users
-)
+OTP_RETENTION_DAYS = 1  # keep old/used OTPs for 1 day before cleanup for registered users

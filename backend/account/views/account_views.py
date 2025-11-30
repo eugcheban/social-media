@@ -21,12 +21,6 @@ class AccountViewSet(viewsets.ModelViewSet):
 
         return Account.objects.filter(id=user.id)
 
-    def create(self, request, *args, **kwargs):
-        serializer = AccountSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=201)
-
     def get_permissions(self):
         if self.action == "create":
             permission_classes = [AllowAny]

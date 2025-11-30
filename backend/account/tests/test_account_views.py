@@ -22,7 +22,7 @@ class TestAccountViews:
             "photos",
         ]
 
-        response = self.client.get("/api/users/")
+        response = self.client.get('account:user-account')
 
         assert response.status_code == 200
         assert len(response.json()) == 2
@@ -54,4 +54,19 @@ class TestAccountViews:
             .check_password("secure_password")
         )
 
-    # def test_forgot_password(self, Account_fixture):
+    def test_change_password(self, account_fixture_2):
+        url = reverse('account:change-password')
+        self.client.force_authenticate(user=account_fixture_2)
+        new_password = 'another_password_29843874'
+        
+        data = {
+            'old_password': 'general_user',
+            'new_password': new_password
+        }
+        
+        response = self.client.post(url, data)
+        print(f"============={url}")
+        print(f"========= {response.data}")
+        assert response.status_code == 200
+        assert account_fixture_2.check_password(new_password)
+        

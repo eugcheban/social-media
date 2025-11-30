@@ -16,7 +16,7 @@ ENV POETRY_VERSION=2.2.1
 RUN pip install "poetry==$POETRY_VERSION"
 
 # Set up working directory
-WORKDIR /app
+WORKDIR /backend
 
 # Copy dependency files first for layer caching
 COPY backend/pyproject.toml backend/poetry.lock* ./

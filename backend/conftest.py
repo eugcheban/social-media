@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
-import django 
+import django
 
 import pytest
 from django.contrib.auth.hashers import make_password
@@ -18,7 +18,7 @@ if PARENT_DIR not in sys.path:
     sys.path.insert(0, PARENT_DIR)
 
 # Setup Django before importing models
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 django.setup()
 
 # pylint: disable=import-outside-toplevel
@@ -65,7 +65,7 @@ def otp():
 
 
 @pytest.fixture
-def hash_otp(otp: Literal['123456']):
+def hash_otp(otp: Literal["123456"]):
     return make_password(otp)
 
 

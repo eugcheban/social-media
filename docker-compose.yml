@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./backend:/app
+      - ./backend:/backend
     env_file:
     - ./.env
     ports:
@@ -35,7 +35,7 @@ services:
     ports:
       - "8025:8025"
     volumes:
-      - ./smtpd_handler.py:/app/smtpd_handler.py
+      - ./smtpd_handler.py:/backend/smtpd_handler.py
 
 volumes:
   social-site-db-data:
