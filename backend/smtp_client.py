@@ -21,7 +21,7 @@ def send_email(
         with SMTP(
             (
                 os.environ.get("SMTP_HOST", "localhost")
-                if is_test == True
+                if is_test
                 else "smtpd"
             ),
             os.environ.get("SMTP_PORT", 8025),

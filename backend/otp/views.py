@@ -24,11 +24,11 @@ class OTPViewsSet(APIView):
         code_otp = OTPService.generate_code()
         try:
             with transaction.atomic():
-                otp_code = OTP(
+                otp = OTP(
                     user=account_user or None,
                     hash_otp=OTPService.hash_otp(code_otp),
                 )
-                otp_code.save()
+                otp.save()
 
         except IntegrityError:
             return Response(
@@ -47,7 +47,7 @@ class OTPViewsSet(APIView):
         ):
             return Response(
                 data={
-                    "uuid": otp_code.code_uuid,
+                    "uuid": otp.code_uuid,
                 }
             )
         else:
@@ -58,7 +58,7 @@ class OTPViewsSet(APIView):
     def get(self, request):
         user = request.user
         code_uuid = request.query_params.get("pk")
-        otp = requests.query_params.get("otp")
+        otp = request.query_params.get("otp")
 
         # clear old codes
         if user.is_time_to_clean_otp:

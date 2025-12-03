@@ -188,3 +188,9 @@ USE_TZ = True
 OTP_DELTA = timedelta(minutes=15)
 OTP_LENGTH = 6
 OTP_RETENTION_DAYS = 1  # keep old/used OTPs for 1 day before cleanup for registered users
+
+# email which will be used for OTP mails
+COMPANY_EMAIL = "admin@django-shop.com"
+# company contact information
+COMPANY_CONTACT_INFORMATION = "228 Example Street"
+COMPANY_NAME = "Django-Shop"

@@ -12,6 +12,8 @@ class TestAccountViews:
         self.client = APIClient()
 
     def test_list_accounts(self, account_fixture, account_fixture_2):
+        url = reverse("account:user-account-list")
+        
         self.client.force_authenticate(user=account_fixture)
         keys_to_check = [
             "id",
@@ -22,7 +24,7 @@ class TestAccountViews:
             "photos",
         ]
 
-        response = self.client.get('account:user-account')
+        response = self.client.get(url)
 
         assert response.status_code == 200
         assert len(response.json()) == 2
@@ -31,7 +33,7 @@ class TestAccountViews:
         assert all(key in response.json()[0] for key in keys_to_check)
 
     def test_create_account(self):
-        url = reverse("account:useraccount-list")
+        url = reverse("account:user-account-list")
 
         data = {
             "username": "test_user",
@@ -55,18 +57,17 @@ class TestAccountViews:
         )
 
     def test_change_password(self, account_fixture_2):
-        url = reverse('account:change-password')
+        url = reverse("account:change-password")
         self.client.force_authenticate(user=account_fixture_2)
-        new_password = 'another_password_29843874'
-        
+        new_password = "another_password_29843874"
+
         data = {
-            'old_password': 'general_user',
-            'new_password': new_password
+            "old_password": "general_user",
+            "new_password": new_password,
         }
-        
+
         response = self.client.post(url, data)
         print(f"============={url}")
         print(f"========= {response.data}")
         assert response.status_code == 200
         assert account_fixture_2.check_password(new_password)
-        
