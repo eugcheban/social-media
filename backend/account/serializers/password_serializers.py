@@ -36,13 +36,14 @@ class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
     
     def validate(self, attrs):
-        user = Account.objects.get(email=attrs["email"])
-        
-        if not user:
+        try:
+            user = Account.objects.get(email=attrs["email"])
+        except Account.DoesNotExist:
             raise serializers.ValidationError(
                 {
-                    "email": f"User with email {attrs["email"]} not found!"
+                    "email": f"User with email {attrs['email']} not found!"
                 }
             )
         
-        return user
+        attrs['user'] = user
+        return attrs

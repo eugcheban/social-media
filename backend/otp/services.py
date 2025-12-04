@@ -39,6 +39,7 @@ class OTPService:
                     hash_otp=OTPService.hash_otp(code),
                 )
                 otp.save()
+            return otp, code
 
         except IntegrityError:
             return False, {"error": "Database integrity error"}
@@ -46,19 +47,19 @@ class OTPService:
         except Exception:
             return False, {"error": "Unexpected server error"}
         
-        return True, code
 
     @staticmethod
-    def send_otp(user, email):
+    def send_email_otp(user, email):
+        otp = OTPService.generate_code(user=user)
         
         response = send_email(
-            COMPANY_EMAIL,
-            email,
-            f"""Dear {user.username},
+            from_addr=COMPANY_EMAIL,
+            to_addr=email,
+            msg=f"""Dear {user.username},
 
             We received a request to reset your email for your account. Please use the one-time password (OTP) below to verify your identity:
 
-            Your OTP: {}
+            Your OTP: {otp[1]}
 
             This OTP will expire in 10 minutes. Please do not share this code with anyone.
 
@@ -71,3 +72,6 @@ class OTPService:
             {COMPANY_CONTACT_INFORMATION}
             """
         )
+        
+        return response, otp
+    

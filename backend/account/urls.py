@@ -1,7 +1,7 @@
 from django.urls import include, path
 
 from .routers import router
-from .views.password_views import PasswordViewSet
+from .views.password_views import PasswordViewSet, PasswordResetViewSet
 
 app_name = "account"
 
@@ -14,7 +14,7 @@ urlpatterns = [
     ),
     path(
         "account/password/reset", 
-        PasswordViewSet.as_view({"post": "reset"}),
+        PasswordResetViewSet.as_view({"post": "reset"}),
         name="reset-password"
     )
 ]

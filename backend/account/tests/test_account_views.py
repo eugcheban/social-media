@@ -71,3 +71,16 @@ class TestAccountViews:
         print(f"========= {response.data}")
         assert response.status_code == 200
         assert account_fixture_2.check_password(new_password)
+
+    def test_reset_password(self, account_fixture_2):
+        url = reverse('account:reset-password')
+        
+        data = {
+            'email': 'test_mail_2@mail.com'
+        }
+        
+        response = self.client.post(url, data)
+        print(f"============ {response.data}")
+        assert response.status_code == 201
+        # assert response.json().get('code_uuid') == 
+        

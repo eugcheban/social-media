@@ -1,4 +1,5 @@
 import os
+from core.settings import COMPANY_EMAIL
 from smtplib import SMTP, SMTPConnectError
 from typing import List, Optional
 
@@ -8,16 +9,12 @@ load_dotenv()
 
 
 def send_email(
-    from_addr: Optional[str] = "admin@socialmedia.com",
+    from_addr: Optional[str] = COMPANY_EMAIL,
     to_addr: List[str] = None,
     msg: str = None,
     is_test=False,
 ):
     try:
-        print(f"================= {is_test}")
-        print(
-            f"================= {os.environ.get('SMTP_HOST', 'localhost') if is_test is not True else 'smtpd'}"
-        )
         with SMTP(
             (
                 os.environ.get("SMTP_HOST", "localhost")
@@ -31,6 +28,9 @@ def send_email(
             return True
     except SMTPConnectError as e:
         print("Connection failed:", e)
+        return False
+    except Exception as e:
+        print(f"Unexpected error: {e}")
         return False
 
 
