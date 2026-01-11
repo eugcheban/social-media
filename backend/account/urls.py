@@ -13,8 +13,18 @@ urlpatterns = [
         name="change-password",
     ),
     path(
-        "account/password/reset", 
+        "account/password-reset/request", 
         PasswordResetViewSet.as_view({"post": "reset"}),
-        name="reset-password"
+        name="password-reset-request",
+    ),
+    path(
+        "account/password-reset/verify",
+        PasswordResetViewSet.as_view({"post": "verify"}),
+        name="password-reset-verify",
+    ),
+    path(
+        "account/password-reset/confirm",
+        PasswordResetViewSet.as_view({"post": "confirm"}),
+        name="password-reset-confirm",
     )
 ]

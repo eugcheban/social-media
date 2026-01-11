@@ -36,7 +36,10 @@ class AccountManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         return self.create_user(
-            username, email, password, **extra_fields
+            email=email,
+            username=username,
+            password=password,
+            **extra_fields,
         )
 
 
@@ -61,9 +64,9 @@ class Account(AbstractUser):
 
     @property
     def is_time_to_clean_otp(self):
-        return self._last_otp_clean < timezone.now + timedelta(
-            days=OTP_RETENTION_DAYS
-        )
+        # Trigger cleanup when the last run is older than the retention window
+        threshold = timezone.now() - timedelta(days=OTP_RETENTION_DAYS)
+        return self._last_otp_clean <= threshold
 
     class Meta:
         db_table = "accounts"

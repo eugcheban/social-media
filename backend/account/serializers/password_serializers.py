@@ -1,6 +1,11 @@
-from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
+import logging
+
 from account.models import Account
+from django.contrib.auth.password_validation import validate_password
+from django.db import DatabaseError
+from rest_framework import serializers
+
+logger = logging.getLogger(__name__)
 
 class PasswordChangeSerizliser(serializers.Serializer):
     old_password = serializers.CharField(max_length=100)
@@ -28,11 +33,17 @@ class PasswordChangeSerizliser(serializers.Serializer):
     def save(self, **kwargs):
         user = self.context["request"].user
         user.set_password(self.validated_data["new_password"])
-        user.save()
+        try:
+            user.save()
+        except DatabaseError as e:
+            logger.error(f"Failed to save password change for user {user.id}: {e}")
+            raise serializers.ValidationError(
+                {"error": "Failed to change password"}
+            )
         return user
 
 
-class PasswordResetSerializer(serializers.Serializer):
+class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
     
     def validate(self, attrs):
@@ -46,4 +57,22 @@ class PasswordResetSerializer(serializers.Serializer):
             )
         
         attrs['user'] = user
+        return attrs
+
+
+class PaswordResetVerifySerializer(serializers.Serializer):
+    code_uuid = serializers.UUIDField()
+    otp = serializers.CharField(max_length=6)
+    
+    def validate(self, attrs):
+        return attrs
+    
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    code_uuid = serializers.UUIDField()
+    otp = serializers.CharField(max_length=6)
+    new_password = serializers.CharField(max_length=100)
+    
+    def validate(self, attrs):
+        validate_password(attrs["new_password"])
         return attrs

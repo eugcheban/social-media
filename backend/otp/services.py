@@ -1,13 +1,22 @@
+import logging
 import random
 import string
+from typing import Optional
 
-from core.settings import OTP_LENGTH, COMPANY_EMAIL, COMPANY_CONTACT_INFORMATION, COMPANY_NAME
+from core.settings import (
+    COMPANY_CONTACT_INFORMATION,
+    COMPANY_EMAIL,
+    COMPANY_NAME,
+    OTP_LENGTH,
+)
 from django.contrib.auth.hashers import check_password, make_password
+from django.db import DatabaseError, IntegrityError, transaction
 from django.utils import timezone
 from smtp_client import send_email
-from django.db import IntegrityError, transaction
+
 from .models import OTP
 
+logger = logging.getLogger(__name__)
 
 class OTPService:
     @staticmethod
@@ -19,8 +28,13 @@ class OTPService:
         checked = check_password(otp, hash_otp)
 
         if checked and otp_instance.used_at is None:
-            otp_instance.used_at = timezone.now()
-            return True
+            try:
+                otp_instance.used_at = timezone.now()
+                otp_instance.save(update_fields=["used_at"])
+                return True
+            except DatabaseError as e:
+                logger.error(f"Failed to mark OTP as used: {e}")
+                return False
 
         return False
 
@@ -29,7 +43,7 @@ class OTPService:
         return check_password(otp, otp_instance.hash_otp)
 
     @staticmethod
-    def generate_code(user):
+    def generate_code(user: Optional[object] = None):
         code = "".join(random.choices(string.digits, k=OTP_LENGTH))
         
         try:
@@ -41,11 +55,17 @@ class OTPService:
                 otp.save()
             return otp, code
 
-        except IntegrityError:
-            return False, {"error": "Database integrity error"}
+        except IntegrityError as e:
+            logger.error(f"Database integrity error generating OTP: {e}")
+            return False, {"error": f"Database integrity error:: {e}"}
 
-        except Exception:
-            return False, {"error": "Unexpected server error"}
+        except DatabaseError as e:
+            logger.error(f"Database error generating OTP: {e}")
+            return False, {"error": f"Database error:: {e}"}
+
+        except Exception as e:
+            logger.error(f"Unexpected error generating OTP: {e}")
+            return False, {"error": f"Unexpected server error:: {e}"}
         
 
     @staticmethod

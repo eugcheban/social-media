@@ -1,5 +1,10 @@
+import logging
+
 from account.models import Account
+from django.db import DatabaseError, IntegrityError
 from rest_framework import serializers
+
+logger = logging.getLogger(__name__)
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -34,5 +39,16 @@ class AccountSerializer(serializers.ModelSerializer):
         password = validated_data.pop("password", None)
         instance = Account(**validated_data)
         instance.set_password(password)
-        instance.save()
+        try:
+            instance.save()
+        except IntegrityError as e:
+            logger.error(f"Failed to create account {validated_data.get('email')}: {e}")
+            raise serializers.ValidationError(
+                {"error": "Account with this email already exists"}
+            )
+        except DatabaseError as e:
+            logger.error(f"Database error creating account: {e}")
+            raise serializers.ValidationError(
+                {"error": "Failed to create account"}
+            )
         return instance

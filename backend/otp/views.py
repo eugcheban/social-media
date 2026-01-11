@@ -1,7 +1,10 @@
+import logging
+
 from account.models import Account
-from django.db import IntegrityError, transaction
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import DatabaseError, IntegrityError, transaction
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,6 +13,8 @@ from smtp_client import send_email
 from .models import OTP
 from .serializers import OTPSerializer
 from .services import OTPService
+
+logger = logging.getLogger(__name__)
 
 
 class OTPViewsSet(APIView):
@@ -21,33 +26,16 @@ class OTPViewsSet(APIView):
         account_user = Account.objects.filter(id=user.id).first()
         from_addr = request.data.get("from_addr")
         to_addr = request.data.get("to_addr")
-        code_otp = OTPService.generate_code()
-        try:
-            with transaction.atomic():
-                otp = OTP(
-                    user=account_user or None,
-                    hash_otp=OTPService.hash_otp(code_otp),
-                )
-                otp.save()
-
-        except IntegrityError:
-            return Response(
-                {"error": "Database integrity error"}, status=500
-            )
-
-        except Exception:
-            return Response(
-                {"error": "Unexpected server error"}, status=500
-            )
+        otp = OTPService.generate_code(user=account_user)
 
         if send_email(
             from_addr=from_addr,
             to_addr=to_addr,
-            msg=f"Your OTP code for authentication is {code_otp}",
+            msg=f"Your OTP code for authentication is {otp[1]}",
         ):
             return Response(
                 data={
-                    "uuid": otp.code_uuid,
+                    "uuid": otp[0].code_uuid,
                 }
             )
         else:
@@ -62,20 +50,36 @@ class OTPViewsSet(APIView):
 
         # clear old codes
         if user.is_time_to_clean_otp:
-            otps = OTP.object.filter(user=request.user).all()
+            try:
+                otps = OTP.objects.filter(user=request.user).all()
 
-            for otp in otps:
-                if not otp.is_valid:
-                    otp.delete()
+                for otp_item in otps:
+                    if not otp_item.is_valid:
+                        otp_item.delete()
+            except DatabaseError as e:
+                logger.warning(f"Failed to clean old OTPs for user {user.id}: {e}")
 
-        otp_instance = OTP.objects.get(code_uuid=code_uuid)
-        hash_otp = otp_instance.hash_otp
+        try:
+            otp_instance = OTP.objects.get(code_uuid=code_uuid)
+            hash_otp = otp_instance.hash_otp
 
-        return Response(
-            data={
-                "validation": OTPService.check_otp(
-                    otp_instance, otp, hash_otp
-                )
-            },
-            status=200,
-        )
+            return Response(
+                data={
+                    "validation": OTPService.check_otp(
+                        otp_instance, otp, hash_otp
+                    )
+                },
+                status=200,
+            )
+        except ObjectDoesNotExist:
+            logger.error(f"OTP with code_uuid {code_uuid} not found")
+            return Response(
+                data={"error": "OTP not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except DatabaseError as e:
+            logger.error(f"Database error validating OTP: {e}")
+            return Response(
+                data={"error": "Failed to validate OTP"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

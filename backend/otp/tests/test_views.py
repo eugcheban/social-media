@@ -17,7 +17,7 @@ class TestOTPViews:
         }
 
         response = self.client.post(url, data)
-
+        print(f"=== Response Data: {response.json()} ===")
         assert response.status_code == 200
 
     def test_create_user_code(self, account_fixture):
