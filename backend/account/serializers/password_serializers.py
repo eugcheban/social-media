@@ -4,6 +4,10 @@ from account.models import Account
 from django.contrib.auth.password_validation import validate_password
 from django.db import DatabaseError
 from rest_framework import serializers
+from rest_framework_simplejwt.token_blacklist.models import (
+    BlacklistedToken,
+    OutstandingToken,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +44,15 @@ class PasswordChangeSerizliser(serializers.Serializer):
             raise serializers.ValidationError(
                 {"error": "Failed to change password"}
             )
+
+        # Blacklist all outstanding tokens to terminate existing sessions
+        try:
+            tokens = OutstandingToken.objects.filter(user=user)
+            for token in tokens:
+                BlacklistedToken.objects.get_or_create(token=token)
+        except Exception as e:  # broad to avoid breaking password change
+            logger.error(f"Failed to blacklist tokens for user {user.id}: {e}")
+
         return user
 
 

@@ -11,20 +11,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry directly (no pipx)
-ENV POETRY_VERSION=2.2.1
-RUN pip install "poetry==$POETRY_VERSION"
-
 # Set up working directory
 WORKDIR /backend
 
 # Copy dependency files first for layer caching
 COPY backend/pyproject.toml backend/poetry.lock* ./
 
+# Install poetry
+RUN pip install "poetry==1.8.2"
+
 # Configure Poetry (disable virtualenv creation in Docker)
 RUN poetry config virtualenvs.create false
 
-RUN poetry install --no-interaction --no-ansi --no-root
+# Install dependencies
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Default command
-CMD ["poetry", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+COPY . .
+
+# Run migrations and start server
+CMD sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"

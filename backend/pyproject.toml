@@ -1,30 +1,30 @@
-[project]
+[tool.poetry]
 name = "backend"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Yevhenii Cheban",email = "eugcheban.07@gmail.com"}
-]
+authors = ["Yevhenii Cheban <eugcheban.07@gmail.com>"]
 readme = "README.md"
-requires-python = ">=3.12, <4.0"
-dependencies = [
-    "django (>=5.2.7,<6.0.0)",
-    "psycopg[binary] (>=3.2.11,<4.0.0)",
-    "python-dotenv (>=1.1.1,<2.0.0)",
-    "djangorestframework (>=3.16.1,<4.0.0)",
-    "pillow (>=12.0.0,<13.0.0)",
-    "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
-    "pytest (>=9.0.1,<10.0.0)",
-    "dotenv (>=0.9.9,<0.10.0)",
-    "pytest-django (>=4.11.1,<5.0.0)",
-    "pylint-django (>=2.6.1,<3.0.0)"
-]
-
-[tool.poetry]
 packages = [{include = "backend", from = "src"}]
 
+[tool.poetry.dependencies]
+python = ">=3.12, <4.0"
+django = ">=5.2.7,<6.0.0"
+psycopg = {extras = ["binary"], version = ">=3.2.11,<4.0.0"}
+python-dotenv = ">=1.1.1,<2.0.0"
+djangorestframework = ">=3.16.1,<4.0.0"
+pillow = ">=12.0.0,<13.0.0"
+djangorestframework-simplejwt = ">=5.5.1,<6.0.0"
+pytest = ">=9.0.1,<10.0.0"
+dotenv = ">=0.9.9,<0.10.0"
+pytest-django = ">=4.11.1,<5.0.0"
+pylint-django = ">=2.6.1,<3.0.0"
+django-cors-headers = ">=4.6.0,<5.0.0"
+
+[tool.poetry.group.dev.dependencies]
+black = ">=25.11.0,<26.0.0"
+
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pylint.main]
@@ -33,8 +33,3 @@ load-plugins = ["pylint_django"]
 
 [tool.black]
 line-length = 70
-
-[dependency-groups]
-dev = [
-    "black (>=25.11.0,<26.0.0)"
-]

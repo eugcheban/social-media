@@ -7,6 +7,10 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.token_blacklist.models import (
+    BlacklistedToken,
+    OutstandingToken,
+)
 
 from otp.models import OTP, PasswordResetSession
 from otp.services import OTPService
@@ -181,12 +185,19 @@ class PasswordResetViewSet(viewsets.GenericViewSet):
 
             otp_instance.used_at = timezone.now()
             otp_instance.save(update_fields=["used_at"])
+
+            # Blacklist outstanding tokens to force re-authentication
+            tokens = OutstandingToken.objects.filter(user=user)
+            for token in tokens:
+                BlacklistedToken.objects.get_or_create(token=token)
         except DatabaseError as e:
             logger.error(f"Failed to reset password for {user.email}: {e}")
             return Response(
                 {"error": "Failed to reset password"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+        except Exception as e:
+            logger.error(f"Failed to blacklist tokens for {user.email}: {e}")
 
         return Response(
             {"detail": "Password has been reset"},

@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import (
     AllowAny,
     IsAdminUser,
@@ -29,3 +30,9 @@ class AccountViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        """Get current authenticated user's data"""
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
